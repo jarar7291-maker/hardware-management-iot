@@ -1,0 +1,117 @@
+// use prisma-8
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String?
+  name      String?
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  computers     Computer[]
+  maintenance   Maintenance[]
+  inventoryLogs InventoryLog[]
+}
+
+model Computer {
+  id         Int      @id @default(autoincrement())
+  name       String
+  hostname   String?
+  ipAddress  String?
+  macAddress String?
+  location   String?
+  status     String   @default("online")
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
+
+  ownerId Int?
+  owner   User? @relation(fields: [ownerId], references: [id])
+
+  sensors     Sensor[]
+  readings    SensorReading[]
+  alerts      Alert[]
+  maintenance Maintenance[]
+}
+
+model Sensor {
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String
+  unit      String?
+  topic     String?
+  status    String   @default("active")
+  createdAt TimestamptzString @default(now())
+
+  computerId Int
+  computer   Computer @relation(fields: [computerId], references: [id])
+
+  readings SensorReading[]
+}
+
+model SensorReading {
+  id         Int      @id @default(autoincrement())
+  value      String
+  recordedAt TimestamptzString @default(now())
+  synced     Boolean  @default(false)
+
+  sensorId Int
+  sensor   Sensor @relation(fields: [sensorId], references: [id])
+
+  computerId Int
+  computer   Computer @relation(fields: [computerId], references: [id])
+}
+
+model Alert {
+  id         Int      @id @default(autoincrement())
+  type       String
+  severity   String
+  message    String
+  isResolved Boolean  @default(false)
+  createdAt  TimestamptzString @default(now())
+  resolvedAt TimestamptzString?
+
+  computerId Int
+  computer   Computer @relation(fields: [computerId], references: [id])
+}
+
+model Maintenance {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      String   @default("pending")
+  scheduledAt TimestamptzString?
+  completedAt Timestamptz?
+  createdAt   TimestamptzString @default(now())
+
+  computerId Int
+  computer   Computer @relation(fields: [computerId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model InventoryItem {
+  id           Int      @id @default(autoincrement())
+  name         String
+  category     String
+  quantity     Int      @default(1)
+  serialNumber String?
+  status       String   @default("available")
+  createdAt    TimestamptzString @default(now())
+  updatedAt    temporal.updatedAtString()
+
+  logs InventoryLog[]
+}
+
+model InventoryLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  quantity  Int
+  createdAt TimestamptzString @default(now())
+
+  itemId Int
+  item   InventoryItem @relation(fields: [itemId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
