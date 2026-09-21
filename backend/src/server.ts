@@ -1,17 +1,17 @@
 import express from "express";
 import cors from "cors";
-import { Pool } from "pg";
 import "dotenv/config";
 
+
+import { pool } from "./config/database";
+import computerRoutes from "./routes/computerRoutes.ts";
+
 const app = express();
-app.use(cors());
 const PORT = 5000;
 
+app.use(cors());
 app.use(express.json());
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+app.use("/api/computers", computerRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hardware Management & IoT Backend is Running!");
@@ -19,7 +19,9 @@ app.get("/", (req, res) => {
 
 app.get("/db-test", async (req, res) => {
   try {
-    const result = await pool.query("SELECT current_database(), current_user");
+    const result = await pool.query(
+      "SELECT current_database(), current_user"
+    );
 
     res.json({
       success: true,
