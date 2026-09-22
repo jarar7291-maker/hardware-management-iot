@@ -5,14 +5,14 @@ import "dotenv/config";
 
 import { pool } from "./config/database";
 import computerRoutes from "./routes/computerRoutes.ts";
-
+import { errorHandler } from "./middleware/errorHandler.ts";
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
 app.use("/api/computers", computerRoutes);
-
+app.use(errorHandler);
 app.get("/", (req, res) => {
   res.send("Hardware Management & IoT Backend is Running!");
 });

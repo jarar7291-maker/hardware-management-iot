@@ -1,8 +1,14 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { pool } from "../config/database.ts";
 
-export const getComputers = async (req: Request, res: Response) => {
+export const getComputers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
+  
+
     const result = await pool.query(
       "SELECT * FROM computer ORDER BY id ASC"
     );
@@ -12,12 +18,7 @@ export const getComputers = async (req: Request, res: Response) => {
       computers: result.rows,
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch computers",
-    });
+    next(error);
   }
 };
 
@@ -61,6 +62,7 @@ export const createComputer = async (req: Request, res: Response) => {
     });
   }
 };
+
 export const updateComputer = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
